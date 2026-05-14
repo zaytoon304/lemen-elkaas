@@ -3,48 +3,67 @@ const G = (() => {
   // ── أرقام عربية شرقية ──
   const toAr = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 
-  // ── حالة اللعبة ──
-  let teams      = [];       // أسماء الفرق
-  let scores     = [];       // نقاط الفرق
-  let teamCount  = 2;        // عدد الفرق
-  let hasAI      = false;    // هل الخصم AI؟
-  let aiAccuracy = 0.75;     // دقة AI
+  // ── ثوابت المواد ──
+  const SUBJECTS = ['math','arabic','english','science','social','islamic'];
+  const SUBJ_META = {
+    math:    { name:'الرياضيات',       icon:'🔢', cls:'sb-math',    seg:'seg-math' },
+    arabic:  { name:'اللغة العربية',    icon:'📖', cls:'sb-arabic',  seg:'seg-arabic' },
+    english: { name:'اللغة الإنجليزية', icon:'🔤', cls:'sb-english', seg:'seg-english' },
+    science: { name:'العلوم',           icon:'🔬', cls:'sb-science', seg:'seg-science' },
+    social:  { name:'الاجتماعيات',      icon:'🌍', cls:'sb-social',  seg:'seg-social' },
+    islamic: { name:'التربية الإسلامية',icon:'🕌', cls:'sb-islamic', seg:'seg-islamic' },
+  };
 
-  let questions  = [];       // الأسئلة المختارة للجلسة
-  let qIndex     = 0;        // رقم السؤال الحالي
-  let TOTAL      = 10;       // عدد الأسئلة لكل فريق
+  // ── ألوان وأسماء الفرق ──
+  const TEAM_COLORS_HEX = ['#4facfe','#f7971e','#00cec9','#a29bfe','#fd79a8'];
+  const TEAM_EMOJIS     = ['🔵','🟠','🟢','🟣','🩷'];
+  const DEFAULT_NAMES   = ['الأبطال','النجوم','العباقرة','المبدعون','الفائزون'];
+
+  // ── حالة اللعبة ──
+  let mode       = 'single';   // 'single' | 'tournament'
+  let teams      = [];
+  let scores     = [];
+  let teamCount  = 2;
+  let hasAI      = false;
+  let aiAccuracy = 0.75;
+
+  let questions  = [];
+  let qIndex     = 0;
+  let TOTAL      = 5;
   let timer      = null;
   let timeLeft   = 30;
   let timerMax   = 30;
   let answered   = false;
   let isSteal    = false;
-  let current    = 0;        // الفريق الحالي
+  let current    = 0;
 
-  // ── جولة الحسم ──
-  let isTiebreaker     = false;
-  let tiebreakerTeams  = [];  // الفرق المتعادلة
-  let tiebreakerIdx    = 0;   // الفريق الحالي داخل الحسم
+  // ── تتبع المواد (tournament) ──
+  let subjectScores  = [];  // [teamIdx][subjKey] = نقاط
+  let currentSubjKey = '';  // المادة الحالية عند بدء السؤال
+
+  // ── الحسم ──
+  let isTiebreaker    = false;
+  let tiebreakerTeams = [];
+  let tiebreakerIdx   = 0;
   let tiebreakerWinner = -1;
+  let tiebreakerPool   = [];
 
-  // ── المادة والصف والمستوى ──
+  // ── الاختيارات المحفوظة ──
   let selectedSubj  = null;
   let selectedGrade = null;
   let selectedLevel = null;
 
-  // ── قائمة الأسئلة المستخدمة ──
-  let usedQuestionIds = new Set();
-
   const $ = id => document.getElementById(id);
-  const TEAM_COLORS = ['--t1','--t2','--t3','--t4','--t5'];
-  const TEAM_EMOJIS = ['🔵','🟠','🟢','🟣','🩷'];
 
   // ─────────────────────────────────────────────
   // تهيئة الواجهة
   // ─────────────────────────────────────────────
   function init() {
-    // أزرار عدد الفرق
+    buildTeamInputs(2);
+
     document.querySelectorAll('[data-tc]').forEach(btn => {
       btn.addEventListener('click', () => {
+        if (btn.classList.contains('tc-disabled')) return;
         document.querySelectorAll('[data-tc]').forEach(b => b.classList.remove('sel-tc'));
         btn.classList.add('sel-tc');
         teamCount = parseInt(btn.getAttribute('data-tc'));
@@ -52,10 +71,6 @@ const G = (() => {
       });
     });
 
-    // بناء الحقول مبدئياً (٢ فرق)
-    buildTeamInputs(2);
-
-    // أزرار المادة
     document.querySelectorAll('.subj-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.subj-btn').forEach(b => b.classList.remove('sel'));
@@ -64,7 +79,6 @@ const G = (() => {
       });
     });
 
-    // أزرار الصف
     document.querySelectorAll('[data-g]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('[data-g]').forEach(b => b.classList.remove('sel-grade'));
@@ -73,19 +87,15 @@ const G = (() => {
       });
     });
 
-    // أزرار المستوى
     document.querySelectorAll('[data-l]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('[data-l]').forEach(b => {
-          b.classList.remove('sel-easy','sel-medium','sel-hard');
-        });
+        document.querySelectorAll('[data-l]').forEach(b => b.classList.remove('sel-easy','sel-medium','sel-hard'));
         const lv = btn.getAttribute('data-l');
         btn.classList.add('sel-' + lv);
         selectedLevel = lv;
       });
     });
 
-    // أزرار عدد الأسئلة
     document.querySelectorAll('[data-q]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('[data-q]').forEach(b => b.classList.remove('sel-qcount'));
@@ -93,170 +103,209 @@ const G = (() => {
         TOTAL = parseInt(btn.getAttribute('data-q'));
       });
     });
-    // الافتراضي ٥
-    const defQ = document.querySelector('[data-q="5"]');
-    if (defQ) { TOTAL = 5; defQ.classList.add('sel-qcount'); }
 
     $('btn-start').addEventListener('click', startGame);
   }
 
   // ─────────────────────────────────────────────
+  // تغيير الوضع
+  // ─────────────────────────────────────────────
+  function setMode(m) {
+    mode = m;
+    const isTourney = m === 'tournament';
+
+    $('mode-btn-single').className     = 'mode-btn' + (isTourney ? '' : ' sel-single');
+    $('mode-btn-tournament').className = 'mode-btn' + (isTourney ? ' sel-tournament' : '');
+
+    // إخفاء/إظهار أقسام المادة وعدد الأسئلة
+    $('single-only-subj').style.display   = isTourney ? 'none' : '';
+    $('single-only-qcount').style.display = isTourney ? 'none' : '';
+    $('tourney-info-badge').style.display  = isTourney ? 'block' : 'none';
+
+    // زر ١ فريق: معطّل في البطولة
+    const tc1 = $('tc-btn-1');
+    if (isTourney) {
+      tc1.classList.add('tc-disabled');
+      // إذا كان مختاراً، انتقل إلى ٢
+      if (teamCount === 1) {
+        teamCount = 2;
+        document.querySelectorAll('[data-tc]').forEach(b => b.classList.remove('sel-tc'));
+        document.querySelector('[data-tc="2"]').classList.add('sel-tc');
+        buildTeamInputs(2);
+      }
+    } else {
+      tc1.classList.remove('tc-disabled');
+    }
+  }
+
+  // ─────────────────────────────────────────────
   // بناء حقول أسماء الفرق
   // ─────────────────────────────────────────────
-  const DEFAULT_NAMES = ['الأبطال','النجوم','العباقرة','المبدعون','الفائزون'];
-  const COLORS_HEX = ['#4facfe','#f7971e','#00cec9','#a29bfe','#fd79a8'];
-
   function buildTeamInputs(count) {
     const grid = $('team-inputs-grid');
-    grid.className = 'team-inputs-grid cols-' + count;
+    grid.className = 'team-inputs-grid cols-' + (count === 1 ? '2' : count);
     grid.innerHTML = '';
 
-    if (count === 1) {
-      // اللاعب + AI
+    const realCount = count === 1 ? 2 : count;
+    for (let i = 0; i < realCount; i++) {
+      const isAI = (count === 1 && i === 1);
       const inp = document.createElement('input');
-      inp.className = 'team-input';
-      inp.id = 'inp-t0';
-      inp.type = 'text';
+      inp.className = 'team-input' + (isAI ? ' ai-field' : '');
+      inp.id        = 'inp-t' + i;
+      inp.type      = 'text';
       inp.maxLength = 20;
-      inp.placeholder = '🔵 ' + DEFAULT_NAMES[0];
-      inp.style.borderColor = COLORS_HEX[0];
-      grid.appendChild(inp);
-
-      const ai = document.createElement('input');
-      ai.className = 'team-input ai-field';
-      ai.id = 'inp-t1';
-      ai.type = 'text';
-      ai.value = 'عقل الأرقم 🤖';
-      ai.readOnly = true;
-      ai.style.borderColor = COLORS_HEX[1];
-      grid.appendChild(ai);
-    } else {
-      for (let i = 0; i < count; i++) {
-        const inp = document.createElement('input');
-        inp.className = 'team-input';
-        inp.id = 'inp-t' + i;
-        inp.type = 'text';
-        inp.maxLength = 20;
+      if (isAI) {
+        inp.value    = 'عقل الأرقم 🤖';
+        inp.readOnly = true;
+      } else {
         inp.placeholder = TEAM_EMOJIS[i] + ' ' + DEFAULT_NAMES[i];
-        inp.style.borderColor = COLORS_HEX[i];
-        grid.appendChild(inp);
       }
+      inp.style.borderColor = TEAM_COLORS_HEX[i];
+      grid.appendChild(inp);
     }
   }
 
   // ─────────────────────────────────────────────
-  // خلط الإجابات في كل سؤال (التعديل ٥)
+  // خلط الإجابات (التعديل ٥)
   // ─────────────────────────────────────────────
-  function shuffleQuestionChoices(question) {
-    const choicesWithFlag = question.c.map((choice, index) => ({
-      text: choice,
-      isCorrect: index === question.a
-    }));
-    for (let i = choicesWithFlag.length - 1; i > 0; i--) {
+  function shuffleChoices(q) {
+    const tagged = q.c.map((text, i) => ({ text, isCorrect: i === q.a }));
+    for (let i = tagged.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [choicesWithFlag[i], choicesWithFlag[j]] = [choicesWithFlag[j], choicesWithFlag[i]];
+      [tagged[i], tagged[j]] = [tagged[j], tagged[i]];
     }
-    return {
-      ...question,
-      c: choicesWithFlag.map(c => c.text),
-      a: choicesWithFlag.findIndex(c => c.isCorrect)
-    };
+    return { ...q, c: tagged.map(t => t.text), a: tagged.findIndex(t => t.isCorrect) };
   }
 
   // ─────────────────────────────────────────────
-  // توزيع الأسئلة حسب المواد
+  // Fisher-Yates
   // ─────────────────────────────────────────────
-  function buildQuestionPool(subj, grade, level, total) {
-    const allSubjects = ['math','arabic','english','science','social','islamic'];
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
 
-    // إذا اختار مادة محددة
+  // ─────────────────────────────────────────────
+  // بناء أسئلة Single Mode
+  // ─────────────────────────────────────────────
+  function buildSinglePool(subj, grade, level, total) {
+    const allSubjs = Object.keys(ALL_QUESTIONS);
+    const pool = [];
+
     if (subj) {
-      const pool = (ALL_QUESTIONS[subj] || []).filter(q =>
-        q.grade === grade && q.level === level && !usedQuestionIds.has(qId(q, subj))
-      );
+      // مادة محددة
+      pool.push(...(ALL_QUESTIONS[subj] || []).filter(q => q.grade === grade && q.level === level));
       return shuffle([...pool]).slice(0, total);
     }
 
-    // توزيع على المواد
-    const perSubject = getDistribution(total);
-    let result = [];
+    // توزيع على كل المواد
+    const dist = getDistribution(total);
+    allSubjs.forEach((s, i) => {
+      const need = dist[i] || 0;
+      if (!need) return;
+      const src = shuffle(
+        (ALL_QUESTIONS[s] || []).filter(q => q.grade === grade && q.level === level)
+      ).slice(0, need);
+      pool.push(...src.map(q => ({ ...q, _subj: s })));
+    });
+    return shuffle(pool);
+  }
 
-    allSubjects.forEach((s, i) => {
-      const need = perSubject[i] || 0;
-      if (need === 0) return;
-      const pool = (ALL_QUESTIONS[s] || []).filter(q =>
-        q.grade === grade && q.level === level && !usedQuestionIds.has(qId(q, s))
+  function getDistribution(total) {
+    if (total === 5)  return [1,1,1,1,1,0];
+    if (total === 7)  return [2,1,1,1,1,1];
+    if (total === 10) return [2,2,2,2,1,1];
+    if (total === 15) return [3,3,2,2,3,2];
+    const base = Math.floor(total / 6);
+    const extra = total % 6;
+    return Array.from({length:6}, (_, i) => base + (i < extra ? 1 : 0));
+  }
+
+  // ─────────────────────────────────────────────
+  // بناء أسئلة البطولة الكبرى
+  // ─────────────────────────────────────────────
+  function buildTournamentPool(grade, level, N) {
+    // لكل مادة: N×2 أسئلة فريدة مقسّمة على الفرق
+    // الترتيب في المصفوفة: team0_r1, team1_r1, ..., teamN-1_r1, team0_r2, team1_r2, ...
+    const result = new Array(N * 12);
+
+    SUBJECTS.forEach((subj, si) => {
+      const pool = shuffle(
+        (ALL_QUESTIONS[subj] || []).filter(q => q.grade === grade && q.level === level)
       );
-      result = result.concat(shuffle([...pool]).slice(0, need));
+      const needed = N * 2;
+      for (let qi = 0; qi < needed; qi++) {
+        const r = Math.floor(qi / N);  // جولة (0 أو 1)
+        const t = qi % N;              // الفريق
+        const q = pool[qi] || pool[qi % pool.length] || pool[0];
+        result[si * N * 2 + r * N + t] = { ...q, _subj: subj };
+      }
     });
 
-    return shuffle(result);
+    return result;
   }
 
-  function qId(q, subj) {
-    return subj + '|' + q.q.slice(0, 20);
-  }
-
-  // توزيع الأسئلة حسب العدد
-  function getDistribution(total) {
-    const s = 6; // عدد المواد
-    if (total === 5)  return [1, 1, 1, 1, 1, 0];   // ٥ مواد عشوائية
-    if (total === 7)  return [1, 1, 1, 1, 1, 1, 1].slice(0, s).map((v,i) => i < 6 ? 1 : 0).concat([1]).slice(0,s);
-    if (total === 10) return [2, 2, 2, 2, 1, 1];    // ١٠ = ٢ لكل مادة
-    if (total === 15) return [3, 3, 2, 2, 3, 2];    // ١٥ = ٢-٣ لكل مادة
-    // افتراضي
-    const base = Math.floor(total / s);
-    const extra = total % s;
-    return Array.from({length: s}, (_, i) => base + (i < extra ? 1 : 0));
+  // المادة الحالية في البطولة
+  function getCurrentSubj(idx, N) {
+    return SUBJECTS[Math.floor(idx / (N * 2))];
   }
 
   // ─────────────────────────────────────────────
   // بدء اللعبة
   // ─────────────────────────────────────────────
   function startGame() {
-    // قراءة الأسماء
-    teams = [];
-    const realCount = teamCount === 1 ? 2 : teamCount;
-    hasAI = teamCount === 1;
-
-    for (let i = 0; i < realCount; i++) {
-      const inp = $('inp-t' + i);
-      if (!inp) { teams.push(DEFAULT_NAMES[i]); continue; }
-      if (inp.readOnly) { teams.push(inp.value); continue; }
-      teams.push(inp.value.trim() || DEFAULT_NAMES[i]);
-    }
-
-    // قراءة الصف والمستوى
     const gradeBtn = document.querySelector('[data-g].sel-grade');
-    const levelSel = document.querySelector('[data-l].sel-easy, [data-l].sel-medium, [data-l].sel-hard');
+    const levelSel = document.querySelector('[data-l].sel-easy,[data-l].sel-medium,[data-l].sel-hard');
 
     if (!gradeBtn) { alert('اختر الصف أولاً!'); return; }
     if (!levelSel) { alert('اختر المستوى أولاً!'); return; }
+    if (mode === 'single' && !selectedSubj) { alert('اختر المادة أولاً!'); return; }
 
     selectedGrade = parseInt(gradeBtn.getAttribute('data-g'));
     selectedLevel = levelSel.getAttribute('data-l');
-
-    // دقة AI
     aiAccuracy = selectedLevel === 'easy' ? 0.60 : selectedLevel === 'medium' ? 0.75 : 0.85;
 
-    // بناء الأسئلة
-    usedQuestionIds.clear();
-    const pool = buildQuestionPool(selectedSubj, selectedGrade, selectedLevel, TOTAL * realCount);
-
-    if (pool.length === 0) {
-      alert('لا توجد أسئلة لهذا الاختيار. جرّب صفاً أو مستوى آخر.');
-      return;
+    // أسماء الفرق
+    hasAI = (mode === 'single' && teamCount === 1);
+    const realCount = teamCount === 1 ? 2 : teamCount;
+    teams = [];
+    for (let i = 0; i < realCount; i++) {
+      const inp = $('inp-t' + i);
+      teams.push(inp && inp.readOnly ? inp.value : (inp && inp.value.trim()) || DEFAULT_NAMES[i]);
     }
 
-    questions = pool.slice(0, Math.min(TOTAL * realCount, pool.length));
-    pool.forEach((q, i) => usedQuestionIds.add(qId(q, selectedSubj || 'mix' + i)));
+    // بناء الأسئلة
+    if (mode === 'tournament') {
+      questions = buildTournamentPool(selectedGrade, selectedLevel, realCount);
+      TOTAL = 12;
+      // تهيئة نقاط المواد
+      subjectScores = teams.map(() => {
+        const obj = {};
+        SUBJECTS.forEach(s => { obj[s] = 0; });
+        return obj;
+      });
+      // بناء شريط التقدم
+      buildTourneyProgressBar(realCount);
+    } else {
+      questions = buildSinglePool(selectedSubj, selectedGrade, selectedLevel, TOTAL * realCount);
+      if (questions.length === 0) {
+        alert('لا توجد أسئلة لهذا الاختيار. جرّب صفاً أو مستوى آخر.');
+        return;
+      }
+      questions = questions.slice(0, TOTAL * realCount);
+    }
 
-    qIndex   = 0;
-    scores   = Array(realCount).fill(0);
-    current  = 0;
-    isSteal  = false;
-    isTiebreaker   = false;
+    scores  = Array(realCount).fill(0);
+    current = 0;
+    qIndex  = 0;
+    isSteal = false;
+    isTiebreaker    = false;
     tiebreakerTeams = [];
+    tiebreakerWinner = -1;
+    tiebreakerPool   = [];
 
     buildGameUI(realCount);
     showScreen('game');
@@ -264,18 +313,67 @@ const G = (() => {
   }
 
   // ─────────────────────────────────────────────
-  // بناء واجهة اللعب حسب عدد الفرق
+  // بناء شريط تقدم البطولة (٦ أجزاء)
+  // ─────────────────────────────────────────────
+  function buildTourneyProgressBar(N) {
+    const container = $('prog-segments');
+    container.innerHTML = '';
+    SUBJECTS.forEach(subj => {
+      const seg = document.createElement('div');
+      seg.className = 'prog-seg';
+      seg.id = 'seg-' + subj;
+      const fill = document.createElement('div');
+      fill.className = 'prog-seg-fill ' + SUBJ_META[subj].seg;
+      fill.id = 'seg-fill-' + subj;
+      seg.appendChild(fill);
+      container.appendChild(seg);
+    });
+  }
+
+  // تحديث شريط التقدم في البطولة
+  function updateTourneyProgress(N) {
+    const subjIdx = Math.floor(qIndex / (N * 2));
+    const withinSubj = qIndex % (N * 2);
+
+    SUBJECTS.forEach((subj, si) => {
+      const fill = $('seg-fill-' + subj);
+      const seg  = $('seg-' + subj);
+      if (!fill || !seg) return;
+      if (si < subjIdx) {
+        fill.style.width = '100%';
+        seg.classList.add('seg-done');
+      } else if (si === subjIdx) {
+        fill.style.width = (withinSubj / (N * 2) * 100) + '%';
+        seg.classList.remove('seg-done');
+      } else {
+        fill.style.width = '0%';
+        seg.classList.remove('seg-done');
+      }
+    });
+
+    const meta = SUBJ_META[SUBJECTS[Math.min(subjIdx, 5)]];
+    $('tourney-prog-label').textContent =
+      `${meta.icon} ${meta.name} — السؤال ${toAr(withinSubj + 1)} من ${toAr(N * 2)}`;
+  }
+
+  // ─────────────────────────────────────────────
+  // بناء واجهة اللعب
   // ─────────────────────────────────────────────
   function buildGameUI(count) {
-    const bar2   = $('score-bar-2');
-    const barM   = $('score-bar-multi');
-    const rope   = $('rope-wrap');
+    const bar2 = $('score-bar-2');
+    const barM = $('score-bar-multi');
+    const sp   = $('single-progress');
+    const tp   = $('tourney-progress');
+    const sbw  = $('subject-badge-wrap');
+
+    // تقدم
+    sp.style.display = (mode === 'tournament') ? 'none' : 'block';
+    tp.style.display = (mode === 'tournament') ? 'block' : 'none';
+    sbw.style.display = (mode === 'tournament') ? 'block' : 'none';
 
     if (count === 2) {
       bar2.style.display = 'flex';
       barM.style.display = 'none';
-      rope.style.display = 'flex';
-      // أسماء
       $('t1-name-lbl').textContent = teams[0];
       $('t2-name-lbl').textContent = teams[1];
       $('t1-pts').textContent = toAr(0);
@@ -285,19 +383,17 @@ const G = (() => {
       updateRope();
     } else {
       bar2.style.display = 'none';
-      rope.style.display = 'none';
       barM.style.display = 'flex';
       barM.innerHTML = '';
-      for (let i = 0; i < count; i++) {
-        const varName = getComputedStyle(document.documentElement).getPropertyValue(TEAM_COLORS[i]).trim();
+      teams.forEach((name, i) => {
         const card = document.createElement('div');
         card.className = 'ts-card';
         card.id = 'ts-card-' + i;
-        card.style.borderColor = COLORS_HEX[i];
-        card.innerHTML = `<div class="ts-name">${TEAM_EMOJIS[i]} ${teams[i]}</div>
-                          <div class="ts-pts" id="ts-pts-${i}" style="color:${COLORS_HEX[i]}">${toAr(0)}</div>`;
+        card.style.borderColor = TEAM_COLORS_HEX[i];
+        card.innerHTML = `<div class="ts-name">${TEAM_EMOJIS[i]} ${name}</div>
+                          <div class="ts-pts" id="ts-pts-${i}" style="color:${TEAM_COLORS_HEX[i]}">${toAr(0)}</div>`;
         barM.appendChild(card);
-      }
+      });
     }
   }
 
@@ -305,41 +401,36 @@ const G = (() => {
   // تحميل سؤال
   // ─────────────────────────────────────────────
   function loadQuestion() {
-    const totalQ = isTiebreaker ? tiebreakerTeams.length * 2 : questions.length;
     if (!isTiebreaker && qIndex >= questions.length) {
       checkTiebreaker();
       return;
     }
 
-    answered  = false;
-    isSteal   = false;
+    answered = false;
+    isSteal  = false;
 
     let q;
     if (isTiebreaker) {
-      // سؤال جديد لجولة الحسم
-      const pool = buildQuestionPool(selectedSubj, selectedGrade, selectedLevel, 4);
-      q = pool.length > 0 ? pool[0] : questions[0];
+      if (tiebreakerPool.length === 0) {
+        tiebreakerPool = buildTiebreakerPool();
+        if (tiebreakerPool.length === 0) { endGame(); return; }
+      }
+      q = tiebreakerPool.shift();
     } else {
       q = questions[qIndex];
     }
 
-    // خلط الإجابات (التعديل ٥)
-    q = shuffleQuestionChoices(q);
+    // حفظ مفتاح المادة الحالية
+    currentSubjKey = q._subj || (mode === 'tournament' ? getCurrentSubj(qIndex, teams.length) : (selectedSubj || ''));
 
-    // حفظ السؤال المعدّل على المؤشر الحالي
+    // خلط الإجابات
+    q = shuffleChoices(q);
     if (!isTiebreaker) questions[qIndex] = q;
 
-    const total  = isTiebreaker ? '?' : toAr(questions.length);
-    const cur    = isTiebreaker ? '?' : toAr(qIndex + 1);
-    const pct    = isTiebreaker ? 0 : ((qIndex) / questions.length) * 100;
-
-    $('progress-fill').style.width = pct + '%';
-    $('progress-label').textContent = `السؤال ${cur} من ${total}`;
-    $('q-counter').textContent = `${cur} / ${total}`;
+    // ── واجهة السؤال ──
     $('q-text').textContent = q.q;
-    $('steal-banner').style.display   = 'none';
-    $('tiebreaker-badge').style.display = isTiebreaker ? 'block' : 'none';
-    $('ai-thinking').style.display = 'none';
+    $('steal-banner').style.display  = 'none';
+    $('ai-thinking').style.display   = 'none';
 
     const letters = ['أ','ب','ج','د'];
     for (let i = 0; i < 4; i++) {
@@ -350,17 +441,54 @@ const G = (() => {
       btn.querySelector('.ch-letter').textContent = letters[i];
     }
 
-    updateTurnBar();
-    timerMax = isSteal ? 15 : 30;
-    startTimer(timerMax);
+    // تحديث التقدم
+    if (mode === 'tournament' && !isTiebreaker) {
+      const N = teams.length;
+      updateTourneyProgress(N);
+      updateSubjectBadge(q._subj || getCurrentSubj(qIndex, N), qIndex, N);
+    } else if (mode === 'single') {
+      const total = toAr(questions.length);
+      const cur   = toAr(qIndex + 1);
+      const pct   = (qIndex / questions.length) * 100;
+      $('progress-fill').style.width = pct + '%';
+      $('progress-label').textContent = `السؤال ${cur} من ${total}`;
+      $('q-counter').textContent = `${cur} / ${total}`;
+    }
 
-    // إذا دور AI
+    if (isTiebreaker) {
+      $('steal-banner').textContent = '⚡ جولة حسم — التعادل!';
+      $('steal-banner').style.background = 'linear-gradient(135deg,#6c5ce7,#a29bfe)';
+      $('steal-banner').style.color = '#fff';
+      $('steal-banner').style.display = 'block';
+    }
+
+    updateTurnBar();
+    timerMax = 30;
+    startTimer(30);
+
+    // دور AI
     if (hasAI && current === 1) {
-      disableAllChoices();
+      document.querySelectorAll('.ch-btn').forEach(b => b.disabled = true);
       $('ai-thinking').style.display = 'block';
       const delay = 1000 + Math.random() * 1000;
-      setTimeout(() => doAiAnswer(q), delay);
+      const captured = q;
+      setTimeout(() => doAiAnswer(captured), delay);
     }
+  }
+
+  // ─────────────────────────────────────────────
+  // شارة المادة
+  // ─────────────────────────────────────────────
+  function updateSubjectBadge(subj, idx, N) {
+    const meta = SUBJ_META[subj] || SUBJ_META['math'];
+    const badge = $('subject-badge');
+    badge.className = 'subject-badge ' + meta.cls;
+    $('sb-icon').textContent = meta.icon;
+    $('sb-name').textContent = meta.name;
+
+    const withinSubj = (idx % (N * 2)) + 1;
+    $('subj-q-counter').textContent =
+      `السؤال ${toAr(withinSubj)} من ${toAr(N * 2)} في ${meta.name}`;
   }
 
   // ─────────────────────────────────────────────
@@ -369,8 +497,7 @@ const G = (() => {
   function doAiAnswer(q) {
     if (answered) return;
     $('ai-thinking').style.display = 'none';
-    enableAllChoices();
-
+    document.querySelectorAll('.ch-btn').forEach(b => b.disabled = false);
     const correct = q.a;
     if (Math.random() < aiAccuracy) {
       pick(correct);
@@ -380,41 +507,30 @@ const G = (() => {
     }
   }
 
-  function disableAllChoices() {
-    document.querySelectorAll('.ch-btn').forEach(b => b.disabled = true);
-  }
-  function enableAllChoices() {
-    document.querySelectorAll('.ch-btn').forEach(b => b.disabled = false);
-  }
-
   // ─────────────────────────────────────────────
   // شريط الدور
   // ─────────────────────────────────────────────
   function updateTurnBar() {
-    const bar  = $('turn-bar');
-    const name = teams[current];
-    const cls  = 't' + (current + 1);
-    bar.className = 'turn-bar ' + cls;
-    bar.textContent = `دور ${name} ${TEAM_EMOJIS[current]}`;
+    const bar = $('turn-bar');
+    bar.className = 'turn-bar t' + (current + 1);
+    bar.textContent = `دور ${teams[current]} ${TEAM_EMOJIS[current]}`;
 
-    // إبراز بطاقة الفريق
     document.querySelectorAll('.ts-card').forEach((c, i) => {
       c.classList.toggle('active-team', i === current);
     });
 
-    // شريط الفريق الثاني في وضع ٢ فريق
     if (teams.length === 2) {
-      const ts1 = $('t1-name-lbl') ? $('t1-name-lbl').parentElement : null;
-      const ts2 = $('t2-name-lbl') ? $('t2-name-lbl').parentElement : null;
-      if (ts1) ts1.style.opacity = current === 0 ? '1' : '0.45';
-      if (ts2) ts2.style.opacity = current === 1 ? '1' : '0.45';
+      const p = $('t1-name-lbl').parentElement;
+      const q2 = $('t2-name-lbl').parentElement;
+      p.style.opacity  = current === 0 ? '1' : '0.45';
+      q2.style.opacity = current === 1 ? '1' : '0.45';
     }
   }
 
   // ─────────────────────────────────────────────
   // المؤقت
   // ─────────────────────────────────────────────
-  function startTimer(seconds = 30) {
+  function startTimer(seconds) {
     clearInterval(timer);
     timeLeft = seconds;
     timerMax = seconds;
@@ -431,19 +547,16 @@ const G = (() => {
     const pct = (timeLeft / timerMax) * 100;
     $('timer-fill').style.width = pct + '%';
     $('timer-fill').style.backgroundColor =
-      timeLeft > Math.ceil(timerMax * .5)  ? '#00b09b' :
-      timeLeft > Math.ceil(timerMax * .23) ? '#fdcb6e' : '#d63031';
+      timeLeft > timerMax * .5  ? '#00b09b' :
+      timeLeft > timerMax * .23 ? '#fdcb6e' : '#d63031';
   }
 
   function onTimeOut() {
     if (answered) return;
     answered = true;
     revealCorrect();
-    if (!isSteal) {
-      activateSteal();
-    } else {
-      setTimeout(nextQuestion, 1800);
-    }
+    if (!isSteal) activateSteal();
+    else setTimeout(nextQuestion, 1800);
   }
 
   // ─────────────────────────────────────────────
@@ -462,26 +575,21 @@ const G = (() => {
     if (idx === correct) {
       $('ch' + idx).classList.add('correct');
       scores[current]++;
+      // تتبع نقاط المادة في البطولة
+      if (mode === 'tournament' && subjectScores[current]) {
+        subjectScores[current][currentSubjKey] = (subjectScores[current][currentSubjKey] || 0) + 1;
+      }
       updateScoreDisplay();
       showFeedback('✅');
-      if (isTiebreaker) {
-        tiebreakerWinner = current;
-        setTimeout(endGame, 1500);
-      } else {
-        setTimeout(nextQuestion, 1500);
-      }
+      if (isTiebreaker) { tiebreakerWinner = current; setTimeout(endGame, 1500); }
+      else setTimeout(nextQuestion, 1500);
     } else {
       $('ch' + idx).classList.add('wrong');
       revealCorrect();
       showFeedback('❌');
-      if (isTiebreaker) {
-        // أخطأ في الحسم — السؤال التالي لباقي المتنافسين
-        setTimeout(() => nextTiebreakerTurn(), 1800);
-      } else if (!isSteal) {
-        activateSteal();
-      } else {
-        setTimeout(nextQuestion, 1800);
-      }
+      if (isTiebreaker) setTimeout(nextTiebreakerTurn, 1800);
+      else if (!isSteal) activateSteal();
+      else setTimeout(nextQuestion, 1800);
     }
   }
 
@@ -496,15 +604,12 @@ const G = (() => {
   function activateSteal() {
     isSteal  = true;
     answered = false;
-    current  = current === 0 ? 1 : 0;
-
-    // للفرق ٣+: الفريق التالي يستطيع الاختطاف
-    if (teams.length > 2) {
-      current = (current + 1) % teams.length;
-    }
-
+    current  = (current + 1) % teams.length;
     updateTurnBar();
+
     const banner = $('steal-banner');
+    banner.style.background = 'linear-gradient(135deg,#f7971e,#ffd200)';
+    banner.style.color = '#1a1a1a';
     banner.textContent = `⚡ فرصة الاختطاف — ${teams[current]}!`;
     banner.style.display = 'block';
 
@@ -515,10 +620,10 @@ const G = (() => {
     startTimer(15);
 
     if (hasAI && current === 1) {
-      disableAllChoices();
+      document.querySelectorAll('.ch-btn').forEach(b => b.disabled = true);
       $('ai-thinking').style.display = 'block';
-      const q = questions[qIndex];
-      setTimeout(() => doAiAnswer(q), 1000 + Math.random() * 800);
+      const captured = questions[qIndex];
+      setTimeout(() => doAiAnswer(captured), 1000 + Math.random() * 800);
     }
   }
 
@@ -548,9 +653,6 @@ const G = (() => {
     }
   }
 
-  // ─────────────────────────────────────────────
-  // حبل الشد
-  // ─────────────────────────────────────────────
   function updateRope() {
     const total = scores[0] + scores[1];
     const pct   = total === 0 ? 50 : Math.round((scores[0] / total) * 100);
@@ -560,26 +662,19 @@ const G = (() => {
   }
 
   // ─────────────────────────────────────────────
-  // جولة الحسم (Tiebreaker)
+  // جولة الحسم
   // ─────────────────────────────────────────────
   function checkTiebreaker() {
     const max = Math.max(...scores);
-    tiebreakerTeams = scores.map((s, i) => ({ i, s }))
-                            .filter(t => t.s === max)
-                            .map(t => t.i);
+    tiebreakerTeams = scores.map((s, i) => i).filter(i => scores[i] === max);
 
     if (tiebreakerTeams.length > 1) {
       isTiebreaker = true;
       tiebreakerIdx = 0;
+      tiebreakerPool = buildTiebreakerPool();
       current = tiebreakerTeams[0];
-      // سؤال حسم جديد
-      const pool = buildTiebreakerPool();
-      if (pool.length === 0) { endGame(); return; }
-      questions = [shuffleQuestionChoices(pool[0])];
+      questions = [];
       qIndex = 0;
-      $('tiebreaker-badge').style.display = 'block';
-      $('tiebreaker-badge').textContent =
-        `⚡ جولة فاصلة: ${tiebreakerTeams.map(i => teams[i]).join(' vs ')}`;
       loadTiebreakerRound();
     } else {
       endGame();
@@ -587,29 +682,27 @@ const G = (() => {
   }
 
   function buildTiebreakerPool() {
-    const pool = (selectedSubj ? [selectedSubj] : Object.keys(ALL_QUESTIONS))
-      .flatMap(s => (ALL_QUESTIONS[s] || []).filter(q =>
-        q.grade === selectedGrade && q.level === selectedLevel
-      ));
-    return shuffle([...pool]);
+    const allQ = [];
+    const subjsToUse = mode === 'tournament' ? SUBJECTS : (selectedSubj ? [selectedSubj] : SUBJECTS);
+    subjsToUse.forEach(s => {
+      allQ.push(...(ALL_QUESTIONS[s] || []).filter(q => q.grade === selectedGrade && q.level === selectedLevel));
+    });
+    return shuffle([...allQ]).map(q => shuffleChoices(q));
   }
 
   function loadTiebreakerRound() {
-    if (tiebreakerIdx >= tiebreakerTeams.length) {
-      tiebreakerIdx = 0;
-    }
-    current = tiebreakerTeams[tiebreakerIdx];
+    if (tiebreakerPool.length === 0) { endGame(); return; }
+    const q = tiebreakerPool.shift();
+    questions = [q];
+    isTiebreaker = true;
+    current = tiebreakerTeams[tiebreakerIdx % tiebreakerTeams.length];
     loadQuestion();
   }
 
   function nextTiebreakerTurn() {
     tiebreakerIdx++;
     if (tiebreakerIdx >= tiebreakerTeams.length) {
-      // لم يجب أحد — سؤال جديد
       tiebreakerIdx = 0;
-      const pool = buildTiebreakerPool();
-      if (pool.length === 0) { endGame(); return; }
-      questions = [shuffleQuestionChoices(pool[0])];
     }
     loadTiebreakerRound();
   }
@@ -621,14 +714,14 @@ const G = (() => {
     clearInterval(timer);
     showScreen('result');
 
+    // نتائج الفرق
     const fs = $('final-scores');
     fs.innerHTML = '';
-
     scores.forEach((s, i) => {
       const item = document.createElement('div');
       item.className = 'fs-item';
       item.innerHTML = `<div class="fs-name">${TEAM_EMOJIS[i]} ${teams[i]}</div>
-                        <div class="fs-num" style="color:${COLORS_HEX[i]}">${toAr(s)}</div>`;
+                        <div class="fs-num" style="color:${TEAM_COLORS_HEX[i]}">${toAr(s)}</div>`;
       fs.appendChild(item);
       if (i < scores.length - 1) {
         const sep = document.createElement('div');
@@ -638,6 +731,7 @@ const G = (() => {
       }
     });
 
+    // الفائز
     let winnerIdx = -1;
     if (isTiebreaker && tiebreakerWinner >= 0) {
       winnerIdx = tiebreakerWinner;
@@ -647,14 +741,102 @@ const G = (() => {
       if (ties.length === 1) winnerIdx = scores.indexOf(max);
     }
 
-    let msg;
     if (winnerIdx >= 0) {
-      msg = `🏆 فاز ${teams[winnerIdx]}!`;
+      $('winner-txt').textContent = `🏆 فاز ${teams[winnerIdx]}!`;
       spawnConfetti();
     } else {
-      msg = '🤝 تعادل! كلا الفريقين رائع!';
+      $('winner-txt').textContent = '🤝 تعادل! كلا الفريقين رائع!';
     }
-    $('winner-txt').textContent = msg;
+
+    // جدول البطولة التفصيلي
+    const tr = $('tourney-results');
+    if (mode === 'tournament') {
+      tr.style.display = 'block';
+      renderTournamentTable(winnerIdx);
+    } else {
+      tr.style.display = 'none';
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // جدول البطولة
+  // ─────────────────────────────────────────────
+  function renderTournamentTable(winnerIdx) {
+    const N = teams.length;
+    const tbl = $('subj-table');
+    tbl.innerHTML = '';
+
+    // رأس الجدول
+    const thead = document.createElement('thead');
+    const hrow  = document.createElement('tr');
+    const th0   = document.createElement('th');
+    th0.textContent = 'الفريق';
+    hrow.appendChild(th0);
+    SUBJECTS.forEach(s => {
+      const th = document.createElement('th');
+      th.textContent = SUBJ_META[s].icon + ' ' + SUBJ_META[s].name;
+      hrow.appendChild(th);
+    });
+    const thTotal = document.createElement('th');
+    thTotal.textContent = '📊 المجموع';
+    hrow.appendChild(thTotal);
+    thead.appendChild(hrow);
+    tbl.appendChild(thead);
+
+    // حساب الفائز في كل مادة
+    const subjWinners = {};
+    SUBJECTS.forEach(s => {
+      const maxScore = Math.max(...teams.map((_, i) => subjectScores[i][s] || 0));
+      subjWinners[s] = teams.map((_, i) => subjectScores[i][s] || 0).reduce((best, v, i) => {
+        if (v === maxScore && v > 0) return best.concat(i);
+        return best;
+      }, []);
+    });
+
+    // صفوف الفرق
+    const tbody = document.createElement('tbody');
+    teams.forEach((name, ti) => {
+      const row = document.createElement('tr');
+
+      const nameTd = document.createElement('td');
+      nameTd.textContent = TEAM_EMOJIS[ti] + ' ' + name;
+      if (ti === winnerIdx) nameTd.style.color = 'var(--gold-light)';
+      row.appendChild(nameTd);
+
+      SUBJECTS.forEach(s => {
+        const td = document.createElement('td');
+        const val = subjectScores[ti][s] || 0;
+        const isChamp = subjWinners[s].includes(ti) && subjWinners[s].length === 1;
+        td.textContent = toAr(val) + '/٢';
+        td.className = val === 2 ? 'score-full' : val === 1 ? 'score-partial' : 'score-zero';
+        if (isChamp) td.classList.add('champ-cell');
+        row.appendChild(td);
+      });
+
+      const totalTd = document.createElement('td');
+      totalTd.textContent = toAr(scores[ti]);
+      totalTd.style.fontWeight = '900';
+      totalTd.style.color = TEAM_COLORS_HEX[ti];
+      row.appendChild(totalTd);
+
+      tbody.appendChild(row);
+    });
+    tbl.appendChild(tbody);
+
+    // شارات "الأقوى في"
+    const wrap = $('strongest-badges');
+    wrap.innerHTML = '';
+    SUBJECTS.forEach(s => {
+      const winners = subjWinners[s];
+      if (winners.length === 0) return;
+      const badge = document.createElement('div');
+      badge.className = 'strongest-badge';
+      const winNames = winners.map(i => teams[i]).join(' & ');
+      badge.innerHTML = `<span>${SUBJ_META[s].icon} ${SUBJ_META[s].name}</span>
+                         <span class="sb-label">الأقوى:</span>
+                         <strong>${winNames}</strong>`;
+      wrap.appendChild(badge);
+    });
   }
 
   // ─────────────────────────────────────────────
@@ -663,10 +845,11 @@ const G = (() => {
   function reset() {
     clearInterval(timer);
     $('confetti-wrap').innerHTML = '';
-    isTiebreaker = false;
+    isTiebreaker    = false;
     tiebreakerTeams = [];
     tiebreakerWinner = -1;
-    usedQuestionIds.clear();
+    tiebreakerPool   = [];
+    subjectScores    = [];
     showScreen('setup');
   }
 
@@ -674,9 +857,7 @@ const G = (() => {
   // الشاشات
   // ─────────────────────────────────────────────
   function showScreen(name) {
-    ['scr-setup','scr-game','scr-result'].forEach(id => {
-      $(id).classList.remove('active');
-    });
+    ['scr-setup','scr-game','scr-result'].forEach(id => $(id).classList.remove('active'));
     $('scr-' + name).classList.add('active');
     window.scrollTo(0, 0);
   }
@@ -700,11 +881,11 @@ const G = (() => {
     const colors = ['#ffd700','#4facfe','#f7971e','#00b09b','#fd79a8','#a29bfe'];
     const container = $('confetti-wrap');
     container.innerHTML = '';
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 90; i++) {
       const el = document.createElement('div');
       el.className = 'cf';
       el.style.left = Math.random() * 100 + 'vw';
-      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.background = colors[i % colors.length];
       el.style.animationDuration = (2 + Math.random() * 3) + 's';
       el.style.animationDelay    = (Math.random() * 1.5) + 's';
       el.style.transform = `rotate(${Math.random() * 360}deg)`;
@@ -713,20 +894,9 @@ const G = (() => {
   }
 
   // ─────────────────────────────────────────────
-  // خلط Fisher-Yates
-  // ─────────────────────────────────────────────
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  // ─────────────────────────────────────────────
   // تشغيل
   // ─────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', init);
 
-  return { pick, reset, startGame };
+  return { pick, reset, startGame, setMode };
 })();

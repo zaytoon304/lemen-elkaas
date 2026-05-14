@@ -28,19 +28,17 @@
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      font-family: 'Tajawal', 'Segoe UI', Arial, sans-serif;
+      font-family: 'Tajawal', Arial, sans-serif;
       background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 60%, #24243e 100%);
       min-height: 100vh;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
+      display: flex; align-items: flex-start; justify-content: center;
       padding: 20px;
     }
-    #app { width: 100%; max-width: 860px; }
-    .screen { display: none; }
-    .screen.active { display: block; }
+    #app { width:100%; max-width:860px; }
+    .screen { display:none; }
+    .screen.active { display:block; }
 
-    /* ── Cards ── */
+    /* ── Card ── */
     .card {
       background: var(--card);
       backdrop-filter: blur(12px);
@@ -51,459 +49,439 @@
       margin-bottom: 18px;
     }
 
-    /* ── HERO / LOGO ── */
+    /* ─────────────────────────────────────────────
+       HERO — بدون شعار
+    ───────────────────────────────────────────── */
     .hero {
       text-align: center;
-      padding: 32px 20px 22px;
-      position: relative;
+      padding: 36px 24px 28px;
     }
-    .logo-wrap {
-      display: inline-block;
-      margin-bottom: 14px;
+    .trophy-anim {
+      font-size: 4rem;
+      display: block;
+      animation: bounce 2s infinite;
+      margin-bottom: 12px;
     }
-    .logo-img {
-      width: 130px; height: 130px;
-      border-radius: 50%;
-      border: 3px solid var(--gold);
-      box-shadow: 0 0 24px rgba(212,165,65,.55), 0 0 60px rgba(212,165,65,.2);
-      object-fit: contain;
-    }
-    .logo-svg-fallback {
-      width: 130px; height: 130px;
-      border-radius: 50%;
-      border: 3px solid var(--gold);
-      box-shadow: 0 0 24px rgba(212,165,65,.55), 0 0 60px rgba(212,165,65,.2);
-      display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, #1a1640, #2d2660);
-      font-family: 'Reem Kufi', serif;
-      font-size: 2.4rem;
-      color: var(--gold);
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-12px); }
     }
     .brand-name {
       font-family: 'Reem Kufi', serif;
-      font-size: 1.65rem;
+      font-size: 2.4rem;
+      font-weight: 700;
       color: var(--gold);
-      letter-spacing: 1px;
-      margin-bottom: 4px;
+      text-shadow: 0 2px 12px rgba(212,165,65,.35);
+      margin-bottom: 6px;
     }
     .brand-unit {
       font-family: 'Tajawal', sans-serif;
-      font-size: 1rem;
+      font-size: 1.05rem;
       color: var(--cream);
-      opacity: .85;
-      margin-bottom: 2px;
+      opacity: .88;
+      margin-bottom: 3px;
     }
     .brand-sub {
-      font-size: .85rem;
-      color: rgba(212,165,65,.7);
-      margin-bottom: 2px;
+      font-size: .88rem;
+      color: rgba(212,165,65,.72);
+      margin-bottom: 3px;
     }
     .brand-tagline {
-      font-size: .8rem;
-      color: rgba(255,255,255,.45);
-      margin-bottom: 18px;
+      font-size: .82rem;
+      color: rgba(255,255,255,.42);
+      margin-bottom: 22px;
+      letter-spacing: .5px;
     }
     .game-title {
       font-family: 'Reem Kufi', serif;
-      font-size: 3.2rem;
+      font-size: 3.4rem;
       font-weight: 700;
       color: var(--gold-light);
-      text-shadow: 0 0 30px rgba(255,215,0,.5), 0 4px 18px rgba(0,0,0,.4);
-      margin: 6px 0 4px;
+      text-shadow: 0 0 32px rgba(255,215,0,.45), 0 4px 18px rgba(0,0,0,.35);
+      margin-bottom: 6px;
     }
     .game-sub {
-      color: rgba(255,255,255,.55);
-      font-size: .95rem;
-    }
-    .trophy-anim { font-size: 3rem; display: block; animation: bounce 2s infinite; margin-bottom: 6px; }
-    @keyframes bounce {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      color: rgba(255,255,255,.5);
+      font-size: .98rem;
     }
 
+    /* ─────────────────────────────────────────────
+       MODE SELECTOR
+    ───────────────────────────────────────────── */
+    .mode-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .mode-btn {
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 20px 16px;
+      cursor: pointer;
+      font-family: 'Tajawal', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-align: center;
+      transition: .25s;
+      color: #fff;
+      background: rgba(255,255,255,.07);
+      line-height: 1.4;
+    }
+    .mode-btn .mode-icon { display:block; font-size:2.4rem; margin-bottom:6px; }
+    .mode-btn:hover { transform: translateY(-3px); background: rgba(255,255,255,.14); }
+    .mode-btn.sel-single {
+      background: rgba(79,172,254,.2);
+      border-color: var(--t1);
+      box-shadow: 0 0 20px rgba(79,172,254,.28);
+    }
+    .mode-btn.sel-tournament {
+      background: rgba(212,165,65,.2);
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(212,165,65,.3);
+    }
+
+    /* ─────────────────────────────────────────────
+       SETUP
+    ───────────────────────────────────────────── */
     .sec-label {
-      font-size: .8rem; font-weight: 700;
-      color: rgba(255,255,255,.55);
+      font-size: .78rem; font-weight: 700;
+      color: rgba(255,255,255,.5);
       letter-spacing: 1.5px;
-      margin-bottom: 12px;
+      margin-bottom: 11px;
     }
 
-    /* ── Team count selector ── */
-    .team-count-row {
-      display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap;
-    }
+    /* Team count */
+    .team-count-row { display:flex; gap:8px; margin-bottom:22px; flex-wrap:wrap; }
     .tc-btn {
-      flex: 1; min-width: 52px;
+      flex:1; min-width:52px;
       background: rgba(255,255,255,.08);
       border: 2px solid var(--border);
       border-radius: 14px;
       padding: 12px 6px 8px;
-      color: #fff;
-      cursor: pointer;
+      color: #fff; cursor: pointer;
       font-family: 'Tajawal', sans-serif;
-      font-size: .85rem;
-      text-align: center;
-      transition: .2s;
-      line-height: 1.4;
+      font-size: .8rem; text-align: center;
+      transition: .2s; line-height: 1.4;
     }
     .tc-btn .tc-num {
-      display: block;
-      font-family: 'Reem Kufi', serif;
-      font-size: 1.7rem;
-      color: var(--gold-light);
-      line-height: 1;
-      margin-bottom: 3px;
+      display:block; font-family:'Reem Kufi', serif;
+      font-size: 1.8rem; color: var(--gold-light);
+      line-height: 1; margin-bottom: 3px;
     }
-    .tc-btn .tc-lbl { font-size: .7rem; color: rgba(255,255,255,.5); }
-    .tc-btn:hover { background: rgba(255,255,255,.14); transform: translateY(-2px); }
-    .tc-btn.sel-tc { background: rgba(212,165,65,.2); border-color: var(--gold); box-shadow: 0 0 16px rgba(212,165,65,.3); }
+    .tc-btn .tc-lbl { font-size:.65rem; color:rgba(255,255,255,.45); }
+    .tc-btn:hover { background:rgba(255,255,255,.14); transform:translateY(-2px); }
+    .tc-btn.sel-tc { background:rgba(212,165,65,.2); border-color:var(--gold); box-shadow:0 0 14px rgba(212,165,65,.3); }
+    .tc-btn.tc-disabled { opacity:.3; cursor:not-allowed; pointer-events:none; }
 
-    /* ── Team name inputs ── */
-    #team-inputs-wrap { margin-bottom: 22px; }
-    .team-inputs-grid {
-      display: grid;
-      gap: 10px;
-    }
-    .team-inputs-grid.cols-2 { grid-template-columns: 1fr 1fr; }
-    .team-inputs-grid.cols-1 { grid-template-columns: 1fr; }
-    .team-inputs-grid.cols-3 { grid-template-columns: repeat(3,1fr); }
-    .team-inputs-grid.cols-4 { grid-template-columns: repeat(2,1fr); }
-    .team-inputs-grid.cols-5 { grid-template-columns: repeat(2,1fr); }
+    /* Team inputs */
+    #team-inputs-wrap { margin-bottom:22px; }
+    .team-inputs-grid { display:grid; gap:10px; }
+    .team-inputs-grid.cols-1 { grid-template-columns:1fr; }
+    .team-inputs-grid.cols-2 { grid-template-columns:1fr 1fr; }
+    .team-inputs-grid.cols-3 { grid-template-columns:repeat(3,1fr); }
+    .team-inputs-grid.cols-4 { grid-template-columns:repeat(2,1fr); }
+    .team-inputs-grid.cols-5 { grid-template-columns:repeat(2,1fr); }
     .team-input {
       background: rgba(255,255,255,.07);
       border: 2px solid transparent;
       border-radius: 14px;
       padding: 12px 14px;
       color: #fff;
-      font-size: .95rem;
       font-family: 'Tajawal', sans-serif;
-      text-align: center;
-      width: 100%;
+      font-size: .95rem; text-align: center; width: 100%;
       transition: .25s;
     }
-    .team-input:focus { outline: none; background: rgba(255,255,255,.14); }
-    .team-input.ai-field {
-      opacity: .55; cursor: not-allowed;
-      border-color: rgba(212,165,65,.4) !important;
-      color: var(--gold);
-    }
+    .team-input:focus { outline:none; background:rgba(255,255,255,.14); }
+    .team-input.ai-field { opacity:.55; cursor:not-allowed; border-color:rgba(212,165,65,.4) !important; color:var(--gold); }
 
-    /* ── Subjects grid ── */
-    .subjects-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 22px; }
+    /* Subjects */
+    .subjects-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:22px; }
     .subj-btn {
       background: rgba(255,255,255,.08);
       border: 2px solid var(--border);
       border-radius: 14px;
       padding: 14px 8px;
-      color: #fff;
-      cursor: pointer;
+      color: #fff; cursor: pointer;
       font-family: 'Tajawal', sans-serif;
-      font-size: .9rem;
-      text-align: center;
-      transition: .2s;
+      font-size: .9rem; text-align: center; transition: .2s;
     }
-    .subj-btn:hover { background: rgba(255,255,255,.15); transform: translateY(-2px); }
-    .subj-btn.sel { background: rgba(79,172,254,.22); border-color: var(--t1); box-shadow: 0 0 16px rgba(79,172,254,.3); }
-    .subj-btn.sel-all { background: rgba(212,165,65,.18); border-color: var(--gold); box-shadow: 0 0 14px rgba(212,165,65,.25); }
-    .subj-icon { display: block; font-size: 1.8rem; margin-bottom: 5px; }
+    .subj-btn:hover { background:rgba(255,255,255,.15); transform:translateY(-2px); }
+    .subj-btn.sel { background:rgba(79,172,254,.22); border-color:var(--t1); box-shadow:0 0 14px rgba(79,172,254,.28); }
+    .subj-icon { display:block; font-size:1.8rem; margin-bottom:5px; }
 
-    /* ── Pick buttons (grade / level) ── */
-    .btn-row { display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
+    /* Grade / Level / Count buttons */
+    .btn-row { display:flex; gap:8px; margin-bottom:22px; flex-wrap:wrap; }
     .pick-btn {
-      flex: 1; min-width: 50px;
+      flex:1; min-width:50px;
       background: rgba(255,255,255,.08);
       border: 2px solid var(--border);
       border-radius: 12px;
       padding: 11px 8px;
-      color: #fff;
-      cursor: pointer;
+      color: #fff; cursor: pointer;
       font-family: 'Tajawal', sans-serif;
-      font-size: .92rem;
-      transition: .2s;
-      text-align: center;
+      font-size: .92rem; transition: .2s; text-align: center;
     }
-    .pick-btn:hover { background: rgba(255,255,255,.16); }
-    .pick-btn.sel-grade  { background: rgba(247,151,30,.22); border-color: var(--t2); box-shadow: 0 0 14px rgba(247,151,30,.3); }
-    .pick-btn.sel-easy   { background: rgba(0,184,148,.22); border-color: var(--ok); }
-    .pick-btn.sel-medium { background: rgba(253,203,110,.22); border-color: #fdcb6e; }
-    .pick-btn.sel-hard   { background: rgba(214,48,49,.22); border-color: var(--bad); }
-    .pick-btn.sel-qcount { background: rgba(212,165,65,.22); border-color: var(--gold); }
+    .pick-btn:hover { background:rgba(255,255,255,.16); }
+    .pick-btn.sel-grade  { background:rgba(247,151,30,.22); border-color:var(--t2); box-shadow:0 0 12px rgba(247,151,30,.28); }
+    .pick-btn.sel-easy   { background:rgba(0,184,148,.22); border-color:var(--ok); }
+    .pick-btn.sel-medium { background:rgba(253,203,110,.22); border-color:#fdcb6e; }
+    .pick-btn.sel-hard   { background:rgba(214,48,49,.22); border-color:var(--bad); }
+    .pick-btn.sel-qcount { background:rgba(212,165,65,.22); border-color:var(--gold); }
 
-    .btn-start {
-      width: 100%;
-      padding: 18px;
-      background: linear-gradient(135deg, var(--gold-light), #ff8c00);
-      border: none;
-      border-radius: 16px;
-      color: #1a1a1a;
-      font-size: 1.25rem;
-      font-weight: 900;
-      font-family: 'Reem Kufi', serif;
-      cursor: pointer;
-      transition: .3s;
-      box-shadow: 0 6px 24px rgba(255,215,0,.4);
-    }
-    .btn-start:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(255,215,0,.5); }
-
-    /* ── GAME SCREEN ── */
-    /* Progress bar */
-    .progress-wrap {
-      margin-bottom: 14px;
-    }
-    .progress-track {
-      width: 100%; height: 6px;
-      background: rgba(255,255,255,.12);
-      border-radius: 3px; overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%; border-radius: 3px;
-      background: linear-gradient(90deg, var(--gold), #ff8c00);
-      transition: width .5s ease;
-    }
-    .progress-label {
-      text-align: center;
-      font-size: .8rem;
-      color: rgba(255,255,255,.45);
-      margin-top: 4px;
-    }
-
-    /* Score bar — 2 teams */
-    .score-bar-2 {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-    .t-score { text-align: center; flex: 1; }
-    .t-name {
-      font-size: .85rem; font-weight: 700;
-      font-family: 'Tajawal', sans-serif;
-      padding: 5px 14px; border-radius: 20px;
-      margin-bottom: 4px;
-      display: inline-block;
-      transition: .3s;
-    }
-    .t-pts {
-      font-size: 2.6rem; font-weight: 900;
-      font-family: 'Reem Kufi', serif;
-    }
-
-    /* Score bar — 3+ teams grid */
-    .score-bar-multi {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 14px;
-    }
-    .ts-card {
-      background: rgba(255,255,255,.08);
-      border: 2px solid rgba(255,255,255,.15);
+    /* Tournament info badge */
+    .tourney-info-badge {
+      background: rgba(212,165,65,.15);
+      border: 1px solid rgba(212,165,65,.35);
       border-radius: 14px;
-      padding: 10px 16px;
+      padding: 14px 18px;
       text-align: center;
-      min-width: 100px;
-      transition: .3s;
+      color: var(--gold);
+      font-size: .95rem;
+      font-weight: 700;
+      margin-bottom: 22px;
+      display: none;
     }
-    .ts-card.active-team {
-      border-color: var(--gold);
-      box-shadow: 0 0 16px rgba(212,165,65,.35);
-      background: rgba(212,165,65,.12);
-    }
-    .ts-card .ts-name {
-      font-size: .8rem; color: rgba(255,255,255,.65);
-      font-family: 'Tajawal', sans-serif;
+    .tourney-info-badge .ti-big {
+      font-family: 'Reem Kufi', serif;
+      font-size: 1.5rem;
+      display: block;
       margin-bottom: 4px;
     }
-    .ts-card .ts-pts {
-      font-size: 1.8rem; font-weight: 900;
-      font-family: 'Reem Kufi', serif;
-    }
 
-    /* Rope visual for 2 teams */
-    .rope-wrap {
-      display: flex; align-items: center; justify-content: center; gap: 12px;
-      margin-bottom: 14px;
+    /* Start button */
+    .btn-start {
+      width: 100%; padding: 18px;
+      background: linear-gradient(135deg, var(--gold-light), #ff8c00);
+      border: none; border-radius: 16px;
+      color: #1a1a1a;
+      font-family: 'Reem Kufi', serif;
+      font-size: 1.25rem; font-weight: 700;
+      cursor: pointer; transition: .3s;
+      box-shadow: 0 6px 24px rgba(255,215,0,.38);
     }
-    .rope-team { font-size: .85rem; font-weight: 700; }
-    .rope-track {
-      flex: 1; max-width: 260px; height: 12px;
+    .btn-start:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(255,215,0,.48); }
+
+    /* ─────────────────────────────────────────────
+       GAME SCREEN
+    ───────────────────────────────────────────── */
+    /* Progress bar (single mode) */
+    .progress-wrap { margin-bottom:14px; }
+    .progress-track { width:100%; height:6px; background:rgba(255,255,255,.12); border-radius:3px; overflow:hidden; }
+    .progress-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--gold),#ff8c00); transition:width .5s; }
+    .progress-label { text-align:center; font-size:.78rem; color:rgba(255,255,255,.4); margin-top:4px; }
+
+    /* Tournament 6-segment progress */
+    .tourney-prog-wrap { margin-bottom:14px; }
+    .prog-segments { display:flex; gap:4px; height:10px; }
+    .prog-seg {
+      flex:1; border-radius:4px;
       background: rgba(255,255,255,.1);
-      border-radius: 6px; overflow: visible;
-      position: relative;
+      overflow: hidden; position: relative;
     }
-    .rope-knot {
-      position: absolute; top: 50%;
-      transform: translate(-50%, -50%);
-      width: 22px; height: 22px;
-      background: var(--gold-light);
-      border-radius: 50%;
-      box-shadow: 0 0 10px rgba(255,215,0,.6);
-      transition: left .6s cubic-bezier(.68,-0.55,.27,1.55);
+    .prog-seg-fill { height:100%; width:0%; border-radius:4px; transition:width .5s; }
+    .prog-seg.seg-done .prog-seg-fill { width:100% !important; }
+    .tourney-prog-label { text-align:center; font-size:.75rem; color:rgba(255,255,255,.38); margin-top:4px; }
+
+    /* Score bars */
+    .score-bar-2 { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .t-score { text-align:center; flex:1; }
+    .t-name {
+      font-family:'Tajawal',sans-serif; font-size:.85rem; font-weight:700;
+      padding:5px 14px; border-radius:20px; margin-bottom:4px;
+      display:inline-block; transition:.3s;
     }
-    .rope-seg-t1 {
-      position: absolute; left:0; top:0; bottom:0;
-      background: var(--t1); border-radius: 6px 0 0 6px;
-      transition: width .6s ease;
+    .t-pts { font-family:'Reem Kufi',serif; font-size:2.6rem; font-weight:900; }
+
+    .score-bar-multi { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:14px; }
+    .ts-card {
+      background:rgba(255,255,255,.08);
+      border:2px solid rgba(255,255,255,.15);
+      border-radius:14px; padding:10px 16px; text-align:center; min-width:100px; transition:.3s;
     }
-    .rope-seg-t2 {
-      position: absolute; right:0; top:0; bottom:0;
-      background: var(--t2); border-radius: 0 6px 6px 0;
-      transition: width .6s ease;
+    .ts-card.active-team { border-color:var(--gold); box-shadow:0 0 16px rgba(212,165,65,.35); background:rgba(212,165,65,.1); }
+    .ts-card .ts-name { font-size:.78rem; color:rgba(255,255,255,.6); font-family:'Tajawal',sans-serif; margin-bottom:4px; }
+    .ts-card .ts-pts { font-family:'Reem Kufi',serif; font-size:1.8rem; font-weight:900; }
+
+    /* Rope visual */
+    .rope-wrap { display:flex; align-items:center; justify-content:center; gap:10px; }
+    .rope-team-lbl { font-size:.78rem; font-weight:700; }
+    .rope-track { flex:1; max-width:260px; height:12px; background:rgba(255,255,255,.08); border-radius:6px; overflow:visible; position:relative; }
+    .rope-seg-t1 { position:absolute; left:0; top:0; bottom:0; background:var(--t1); border-radius:6px 0 0 6px; transition:width .6s ease; }
+    .rope-seg-t2 { position:absolute; right:0; top:0; bottom:0; background:var(--t2); border-radius:0 6px 6px 0; transition:width .6s ease; }
+    .rope-knot { position:absolute; top:50%; transform:translate(-50%,-50%); width:20px; height:20px; background:var(--gold-light); border-radius:50%; box-shadow:0 0 10px rgba(255,215,0,.6); transition:left .6s ease; }
+    .q-counter { text-align:center; color:rgba(255,255,255,.42); font-size:.78rem; }
+
+    /* Subject badge (tournament) */
+    .subject-badge-wrap { margin-bottom:12px; text-align:center; display:none; }
+    .subject-badge {
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 22px; border-radius:30px;
+      border:2px solid; font-size:1.1rem; font-weight:700;
+      font-family:'Tajawal',sans-serif;
+      animation:badgePop .4s ease;
     }
+    @keyframes badgePop { 0%{transform:scale(.85);opacity:0} 100%{transform:scale(1);opacity:1} }
+    .subject-badge .sb-icon { font-size:1.6rem; }
+    .subj-q-counter { font-size:.78rem; color:rgba(255,255,255,.42); margin-top:5px; }
+
+    /* Subject colors */
+    .sb-math    { background:rgba(79,172,254,.18); border-color:#4facfe; color:#4facfe; }
+    .sb-arabic  { background:rgba(162,155,254,.18); border-color:#a29bfe; color:#a29bfe; }
+    .sb-english { background:rgba(0,206,201,.18); border-color:#00cec9; color:#00cec9; }
+    .sb-science { background:rgba(0,184,148,.18); border-color:#00b894; color:#00b894; }
+    .sb-social  { background:rgba(247,151,30,.18); border-color:#f7971e; color:#f7971e; }
+    .sb-islamic { background:rgba(212,165,65,.18); border-color:#d4a541; color:#d4a541; }
+
+    .seg-math    { background:rgba(79,172,254,.7); }
+    .seg-arabic  { background:rgba(162,155,254,.7); }
+    .seg-english { background:rgba(0,206,201,.7); }
+    .seg-science { background:rgba(0,184,148,.7); }
+    .seg-social  { background:rgba(247,151,30,.7); }
+    .seg-islamic { background:rgba(212,165,65,.7); }
 
     /* Turn bar */
     .turn-bar {
-      text-align: center;
-      padding: 9px 20px;
-      border-radius: 25px;
-      font-family: 'Tajawal', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-      transition: .4s;
+      text-align:center; padding:9px 20px; border-radius:25px;
+      font-family:'Tajawal',sans-serif; font-size:1rem; font-weight:700;
+      margin-bottom:12px; transition:.4s;
     }
-    .turn-bar.t1 { background: rgba(79,172,254,.2); color: var(--t1); border: 1px solid rgba(79,172,254,.3); }
-    .turn-bar.t2 { background: rgba(247,151,30,.2); color: var(--t2); border: 1px solid rgba(247,151,30,.3); }
-    .turn-bar.t3 { background: rgba(0,206,201,.2); color: var(--t3); border: 1px solid rgba(0,206,201,.3); }
-    .turn-bar.t4 { background: rgba(162,155,254,.2); color: var(--t4); border: 1px solid rgba(162,155,254,.3); }
-    .turn-bar.t5 { background: rgba(253,121,168,.2); color: var(--t5); border: 1px solid rgba(253,121,168,.3); }
+    .turn-bar.t1 { background:rgba(79,172,254,.2); color:var(--t1); border:1px solid rgba(79,172,254,.3); }
+    .turn-bar.t2 { background:rgba(247,151,30,.2); color:var(--t2); border:1px solid rgba(247,151,30,.3); }
+    .turn-bar.t3 { background:rgba(0,206,201,.2); color:var(--t3); border:1px solid rgba(0,206,201,.3); }
+    .turn-bar.t4 { background:rgba(162,155,254,.2); color:var(--t4); border:1px solid rgba(162,155,254,.3); }
+    .turn-bar.t5 { background:rgba(253,121,168,.2); color:var(--t5); border:1px solid rgba(253,121,168,.3); }
 
     .steal-banner {
-      background: linear-gradient(135deg, #f7971e, #ffd200);
-      color: #1a1a1a;
-      padding: 10px 20px;
-      border-radius: 12px;
-      text-align: center;
-      font-weight: 800;
-      font-size: 1rem;
-      margin-bottom: 12px;
-      display: none;
-      animation: slideIn .3s ease;
+      background:linear-gradient(135deg,#f7971e,#ffd200); color:#1a1a1a;
+      padding:10px 20px; border-radius:12px; text-align:center;
+      font-weight:800; font-size:1rem; margin-bottom:12px;
+      display:none; animation:slideIn .3s ease;
     }
-    @keyframes slideIn { from { transform: translateY(-8px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+    @keyframes slideIn { from{transform:translateY(-8px);opacity:0} to{transform:translateY(0);opacity:1} }
 
-    .timer-wrap { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 18px; }
-    .timer-num {
-      font-size: 1.6rem; font-weight: 900;
-      font-family: 'Reem Kufi', serif;
-      color: var(--gold-light); min-width: 42px; text-align: center;
-    }
-    .timer-track { flex: 1; max-width: 240px; height: 10px; background: rgba(255,255,255,.15); border-radius: 5px; overflow: hidden; }
-    .timer-fill { height: 100%; border-radius: 5px; transition: width 1s linear, background-color .5s; background: #00b09b; }
+    /* Timer */
+    .timer-wrap { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:18px; }
+    .timer-num { font-family:'Reem Kufi',serif; font-size:1.6rem; font-weight:900; color:var(--gold-light); min-width:44px; text-align:center; }
+    .timer-track { flex:1; max-width:240px; height:10px; background:rgba(255,255,255,.13); border-radius:5px; overflow:hidden; }
+    .timer-fill { height:100%; border-radius:5px; transition:width 1s linear, background-color .5s; }
 
+    /* Question */
     .q-text {
-      font-family: 'Tajawal', sans-serif;
-      font-size: 1.7rem; font-weight: 700;
-      text-align: center; line-height: 1.7;
-      margin-bottom: 20px;
-      padding: 18px 20px;
-      color: var(--question-color);
-      background: #fdf6e3;
-      border-radius: 16px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,.15);
+      font-family:'Tajawal',sans-serif;
+      font-size:1.7rem; font-weight:700;
+      text-align:center; line-height:1.75;
+      margin-bottom:20px; padding:18px 22px;
+      color:var(--question-color);
+      background:#fdf6e3;
+      border-radius:16px;
+      text-shadow:1px 1px 2px rgba(0,0,0,.13);
     }
-    .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Choices */
+    .choices-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     .ch-btn {
-      background: rgba(255,255,255,.92);
-      border: 2px solid rgba(10,21,53,.18);
-      border-radius: 16px;
-      padding: 14px 18px;
-      color: var(--answer-color);
-      font-family: 'Tajawal', sans-serif;
-      font-size: 1.05rem;
-      cursor: pointer;
-      text-align: right;
-      transition: .18s;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      background:rgba(255,255,255,.92);
+      border:2px solid rgba(10,21,53,.15);
+      border-radius:16px; padding:14px 18px;
+      color:var(--answer-color);
+      font-family:'Tajawal',sans-serif; font-size:1.05rem;
+      cursor:pointer; text-align:right; transition:.18s;
+      display:flex; align-items:center; gap:10px;
     }
-    .ch-btn:hover:not(:disabled) { background: rgba(240,248,255,.95); border-color: var(--t1); transform: translateY(-2px); }
-    .ch-btn:disabled { cursor: default; }
-    .ch-btn.correct { background: rgba(0,184,148,.25) !important; border-color: var(--ok) !important; color: #006450 !important; animation: correctPop .4s ease; }
-    .ch-btn.wrong   { background: rgba(214,48,49,.2) !important; border-color: var(--bad) !important; color: #8b0000 !important; animation: wrongShake .4s ease; }
-    .ch-btn.reveal  { background: rgba(0,184,148,.12); border-color: rgba(0,184,148,.5); }
-    @keyframes correctPop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+    .ch-btn:hover:not(:disabled) { background:#e8f4fd; border-color:var(--t1); transform:translateY(-2px); }
+    .ch-btn:disabled { cursor:default; }
+    .ch-btn.correct { background:rgba(0,184,148,.22) !important; border-color:var(--ok) !important; color:#005840 !important; animation:correctPop .4s ease; }
+    .ch-btn.wrong   { background:rgba(214,48,49,.18) !important; border-color:var(--bad) !important; color:#8b0000 !important; animation:wrongShake .4s ease; }
+    .ch-btn.reveal  { background:rgba(0,184,148,.1); border-color:rgba(0,184,148,.45); }
+    @keyframes correctPop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
     @keyframes wrongShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
     .ch-letter {
-      min-width: 30px; height: 30px;
-      background: var(--answer-color);
-      color: #fff;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .8rem; font-weight: 700;
-      flex-shrink: 0;
+      min-width:30px; height:30px; background:var(--answer-color); color:#fff;
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-size:.78rem; font-weight:700; flex-shrink:0;
     }
 
-    /* ── AI thinking indicator ── */
+    /* AI thinking */
     .ai-thinking {
-      text-align: center;
-      color: var(--gold);
-      font-size: .9rem;
-      margin-bottom: 8px;
-      display: none;
-      animation: blink 1s infinite;
+      text-align:center; color:var(--gold); font-size:.9rem; margin-bottom:8px;
+      display:none; animation:blink 1s infinite;
     }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
 
-    /* ── RESULT SCREEN ── */
-    .result-center { text-align: center; }
+    /* ─────────────────────────────────────────────
+       RESULT SCREEN
+    ───────────────────────────────────────────── */
+    .result-center { text-align:center; }
     .winner-txt {
-      font-family: 'Reem Kufi', serif;
-      font-size: 2.2rem; font-weight: 700;
-      color: var(--gold-light); margin: 10px 0 20px;
+      font-family:'Reem Kufi',serif; font-size:2.2rem; font-weight:700;
+      color:var(--gold-light); margin:10px 0 20px;
     }
-    .final-scores {
-      display: flex; justify-content: center;
-      flex-wrap: wrap; gap: 30px; margin: 20px 0 30px;
+    .final-scores { display:flex; justify-content:center; flex-wrap:wrap; gap:28px; margin:20px 0 30px; }
+    .fs-item { text-align:center; }
+    .fs-name { font-size:.85rem; color:rgba(255,255,255,.58); margin-bottom:6px; font-family:'Tajawal',sans-serif; }
+    .fs-num  { font-family:'Reem Kufi',serif; font-size:3.2rem; font-weight:900; }
+
+    /* Tournament results table */
+    .tourney-results { margin-top:22px; display:none; }
+    .tourney-results-title {
+      font-family:'Reem Kufi',serif; font-size:1.2rem; color:var(--gold);
+      margin-bottom:14px; text-align:center;
     }
-    .fs-item { text-align: center; }
-    .fs-name { font-size: .85rem; color: rgba(255,255,255,.6); margin-bottom: 6px; font-family: 'Tajawal', sans-serif; }
-    .fs-num  { font-size: 3.2rem; font-weight: 900; font-family: 'Reem Kufi', serif; }
+    .subj-table-wrap { overflow-x:auto; border-radius:14px; }
+    .subj-table {
+      width:100%; border-collapse:collapse;
+      font-family:'Tajawal',sans-serif; font-size:.88rem;
+      background:rgba(255,255,255,.06);
+      border-radius:14px; overflow:hidden;
+    }
+    .subj-table th {
+      padding:10px 12px; text-align:center;
+      color:rgba(255,255,255,.6); font-weight:700;
+      background:rgba(255,255,255,.08);
+      border-bottom:1px solid rgba(255,255,255,.1);
+      white-space:nowrap;
+    }
+    .subj-table th:first-child { text-align:right; }
+    .subj-table td {
+      padding:10px 12px; text-align:center;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      font-family:'Reem Kufi',serif; font-size:1rem;
+    }
+    .subj-table td:first-child { text-align:right; font-family:'Tajawal',sans-serif; font-weight:700; color:#fff; }
+    .subj-table tr:last-child td { border-bottom:none; }
+    .score-full    { color:var(--ok); font-weight:900; }
+    .score-partial { color:var(--gold-light); }
+    .score-zero    { color:var(--bad); }
+    .champ-cell    { position:relative; }
+    .champ-cell::after { content:'🏅'; font-size:.7rem; margin-right:2px; }
+
+    /* Strongest badges */
+    .strongest-wrap { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:16px; }
+    .strongest-badge {
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+      border-radius:20px; padding:7px 14px;
+      font-family:'Tajawal',sans-serif; font-size:.8rem; color:#fff;
+      display:flex; align-items:center; gap:6px;
+    }
+    .strongest-badge .sb-label { color:rgba(255,255,255,.55); }
 
     .btn-again {
-      background: linear-gradient(135deg, var(--t1), #667eea);
-      border: none; border-radius: 16px;
-      color: #fff; font-size: 1.1rem; font-weight: 700;
-      font-family: 'Reem Kufi', serif;
-      padding: 16px 44px; cursor: pointer; transition: .3s;
-      box-shadow: 0 6px 20px rgba(79,172,254,.35);
+      background:linear-gradient(135deg,var(--t1),#667eea);
+      border:none; border-radius:16px; color:#fff;
+      font-family:'Reem Kufi',serif; font-size:1.1rem; font-weight:700;
+      padding:16px 44px; cursor:pointer; transition:.3s;
+      box-shadow:0 6px 20px rgba(79,172,254,.32);
     }
-    .btn-again:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(79,172,254,.45); }
-
-    /* ── tiebreaker badge ── */
-    .tiebreaker-badge {
-      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 14px;
-      text-align: center;
-      font-weight: 800;
-      font-size: 1rem;
-      margin-bottom: 12px;
-      display: none;
-      animation: slideIn .3s ease;
-    }
+    .btn-again:hover { transform:translateY(-3px); box-shadow:0 12px 28px rgba(79,172,254,.42); }
 
     /* ── Confetti ── */
-    .confetti-wrap { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:999; overflow:hidden; }
-    .cf {
-      position: absolute;
-      width: 9px; height: 18px;
-      top: -20px;
-      border-radius: 3px;
-      animation: cfFall linear forwards;
-    }
-    @keyframes cfFall { to { transform: translateY(110vh) rotate(720deg); opacity: .2; } }
+    .confetti-wrap { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:999; overflow:hidden; }
+    .cf { position:absolute; width:9px; height:18px; top:-20px; border-radius:3px; animation:cfFall linear forwards; }
+    @keyframes cfFall { to{transform:translateY(110vh) rotate(720deg);opacity:.15;} }
 
-    /* ── Feedback pop ── */
-    .feedback {
-      position: fixed; top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      font-size:5rem; pointer-events:none; opacity:0; z-index:1000;
-    }
-    .feedback.show { animation: feedPop 1s ease forwards; }
+    /* Feedback pop */
+    .feedback { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:5rem; pointer-events:none; opacity:0; z-index:1000; }
+    .feedback.show { animation:feedPop 1s ease forwards; }
     @keyframes feedPop {
       0%   { transform:translate(-50%,-50%) scale(.4); opacity:1; }
       50%  { transform:translate(-50%,-50%) scale(1.4); opacity:1; }
@@ -512,27 +490,28 @@
 
     /* ── Responsive ── */
     @media(max-width:600px){
-      .game-title { font-size: 2.2rem; }
-      .brand-name { font-size: 1.3rem; }
-      .subjects-grid { grid-template-columns: repeat(2,1fr); }
+      .game-title { font-size:2.4rem; }
+      .brand-name { font-size:1.85rem; }
+      .subjects-grid { grid-template-columns:repeat(2,1fr); }
       .team-inputs-grid.cols-3,
       .team-inputs-grid.cols-4,
-      .team-inputs-grid.cols-5 { grid-template-columns: 1fr 1fr; }
-      .q-text { font-size: 1.15rem; }
-      .ch-btn { font-size: .9rem; padding: 11px 12px; }
-      .btn-row .pick-btn { font-size: .8rem; padding: 9px 5px; }
-      .final-scores { gap: 18px; }
-      .fs-num { font-size: 2.4rem; }
+      .team-inputs-grid.cols-5 { grid-template-columns:1fr 1fr; }
+      .q-text { font-size:1.25rem; padding:14px 16px; }
+      .ch-btn { font-size:.88rem; padding:11px 12px; }
+      .btn-row .pick-btn { font-size:.78rem; padding:9px 5px; }
+      .final-scores { gap:16px; }
+      .fs-num { font-size:2.4rem; }
+      .mode-row { grid-template-columns:1fr 1fr; gap:10px; }
     }
     @media(min-width:1200px){
-      #app { max-width: 1100px; }
-      .q-text { font-size: 2rem; }
-      .ch-btn { font-size: 1.2rem; padding: 18px 22px; }
+      #app { max-width:1080px; }
+      .q-text { font-size:2rem; }
+      .ch-btn { font-size:1.15rem; padding:17px 22px; }
     }
     @media(min-width:1800px){
-      #app { max-width: 1300px; }
-      .q-text { font-size: 2.4rem; }
-      .ch-btn { font-size: 1.35rem; padding: 20px 26px; }
+      #app { max-width:1300px; }
+      .q-text { font-size:2.4rem; }
+      .ch-btn { font-size:1.3rem; padding:20px 26px; }
     }
   </style>
 </head>
@@ -541,13 +520,10 @@
 
   <!-- ░░ SETUP SCREEN ░░ -->
   <div id="scr-setup" class="screen active">
+
+    <!-- Hero بدون شعار -->
     <div class="card hero">
       <span class="trophy-anim">🏆</span>
-      <div class="logo-wrap">
-        <img class="logo-img" src="logo.png" alt="شعار الأرقم"
-             onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';">
-        <div class="logo-svg-fallback" id="logoFallback" style="display:none;">رقم</div>
-      </div>
       <div class="brand-name">مدارس الأرقم</div>
       <div class="brand-unit">وحدة الموهبة والذكاء الاصطناعي</div>
       <div class="brand-sub">(الألعاب الإلكترونية)</div>
@@ -556,53 +532,71 @@
       <div class="game-sub">شدّ الحبل التعليمي</div>
     </div>
 
+    <!-- اختيار الوضع -->
     <div class="card">
+      <div class="sec-label">اختر وضع اللعب</div>
+      <div class="mode-row">
+        <button class="mode-btn sel-single" id="mode-btn-single" onclick="G.setMode('single')">
+          <span class="mode-icon">📚</span>
+          تحدي مادة واحدة
+        </button>
+        <button class="mode-btn" id="mode-btn-tournament" onclick="G.setMode('tournament')">
+          <span class="mode-icon">🏆</span>
+          البطولة الكبرى
+          <div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:3px;">كل المواد الست</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- إعدادات اللعبة -->
+    <div class="card">
+
       <!-- عدد الفرق -->
       <div class="sec-label">عدد الفرق</div>
       <div class="team-count-row" id="tc-row">
-        <button class="tc-btn" data-tc="1">
+        <button class="tc-btn" data-tc="1" id="tc-btn-1">
           <span class="tc-num">١</span>
-          <span>ضد عقل الأرقم 🤖</span>
+          <span class="tc-lbl">ضد عقل الأرقم 🤖</span>
         </button>
         <button class="tc-btn sel-tc" data-tc="2">
           <span class="tc-num">٢</span>
-          <span>فريقان</span>
+          <span class="tc-lbl">فريقان</span>
         </button>
         <button class="tc-btn" data-tc="3">
           <span class="tc-num">٣</span>
-          <span>ثلاثة فرق</span>
+          <span class="tc-lbl">ثلاثة</span>
         </button>
         <button class="tc-btn" data-tc="4">
           <span class="tc-num">٤</span>
-          <span>أربعة فرق</span>
+          <span class="tc-lbl">أربعة</span>
         </button>
         <button class="tc-btn" data-tc="5">
           <span class="tc-num">٥</span>
-          <span>خمسة فرق</span>
+          <span class="tc-lbl">خمسة</span>
         </button>
       </div>
 
-      <!-- أسماء الفرق (ديناميكي) -->
+      <!-- أسماء الفرق -->
       <div class="sec-label">أسماء الفرق</div>
       <div id="team-inputs-wrap">
-        <div class="team-inputs-grid cols-2" id="team-inputs-grid">
-          <!-- يملؤها JS -->
+        <div class="team-inputs-grid cols-2" id="team-inputs-grid"></div>
+      </div>
+
+      <!-- المادة (single only) -->
+      <div id="single-only-subj">
+        <div class="sec-label">اختر المادة</div>
+        <div class="subjects-grid">
+          <button class="subj-btn" data-s="math">   <span class="subj-icon">🔢</span>الرياضيات</button>
+          <button class="subj-btn" data-s="arabic">  <span class="subj-icon">📖</span>اللغة العربية</button>
+          <button class="subj-btn" data-s="english"> <span class="subj-icon">🌐</span>اللغة الإنجليزية</button>
+          <button class="subj-btn" data-s="science"> <span class="subj-icon">🔬</span>العلوم</button>
+          <button class="subj-btn" data-s="social">  <span class="subj-icon">🌍</span>الاجتماعيات</button>
+          <button class="subj-btn" data-s="islamic"> <span class="subj-icon">☪️</span>التربية الإسلامية</button>
         </div>
       </div>
 
-      <!-- المادة -->
-      <div class="sec-label">اختر المادة</div>
-      <div class="subjects-grid" id="subj-grid">
-        <button class="subj-btn" data-s="math">   <span class="subj-icon">🔢</span>الرياضيات</button>
-        <button class="subj-btn" data-s="arabic">  <span class="subj-icon">📖</span>اللغة العربية</button>
-        <button class="subj-btn" data-s="english"> <span class="subj-icon">🌐</span>اللغة الإنجليزية</button>
-        <button class="subj-btn" data-s="science"> <span class="subj-icon">🔬</span>العلوم</button>
-        <button class="subj-btn" data-s="social">  <span class="subj-icon">🌍</span>الاجتماعيات</button>
-        <button class="subj-btn" data-s="islamic"> <span class="subj-icon">☪️</span>التربية الإسلامية</button>
-      </div>
-
       <!-- الصف -->
-      <div class="sec-label">اختر الصف الدراسي</div>
+      <div class="sec-label">الصف الدراسي</div>
       <div class="btn-row" id="grade-row">
         <button class="pick-btn" data-g="1">الأول</button>
         <button class="pick-btn" data-g="2">الثاني</button>
@@ -613,20 +607,28 @@
       </div>
 
       <!-- المستوى -->
-      <div class="sec-label">اختر المستوى</div>
+      <div class="sec-label">مستوى الصعوبة</div>
       <div class="btn-row" id="level-row">
         <button class="pick-btn" data-l="easy">سهل 🟢</button>
         <button class="pick-btn" data-l="medium">متوسط 🟡</button>
         <button class="pick-btn" data-l="hard">صعب 🔴</button>
       </div>
 
-      <!-- عدد الأسئلة -->
-      <div class="sec-label">عدد الأسئلة للفريق</div>
-      <div class="btn-row" id="qcount-row">
-        <button class="pick-btn sel-qcount" data-q="5">٥ أسئلة</button>
-        <button class="pick-btn" data-q="7">٧ أسئلة</button>
-        <button class="pick-btn" data-q="10">١٠ أسئلة</button>
-        <button class="pick-btn" data-q="15">١٥ سؤالاً</button>
+      <!-- عدد الأسئلة (single only) -->
+      <div id="single-only-qcount">
+        <div class="sec-label">عدد الأسئلة للفريق</div>
+        <div class="btn-row" id="qcount-row">
+          <button class="pick-btn sel-qcount" data-q="5">٥ أسئلة</button>
+          <button class="pick-btn" data-q="7">٧ أسئلة</button>
+          <button class="pick-btn" data-q="10">١٠ أسئلة</button>
+          <button class="pick-btn" data-q="15">١٥ سؤالاً</button>
+        </div>
+      </div>
+
+      <!-- شارة البطولة الكبرى -->
+      <div class="tourney-info-badge" id="tourney-info-badge">
+        <span class="ti-big">٢ × ٦ = ١٢ سؤال لكل فريق</span>
+        سؤالان من كل مادة من المواد الست
       </div>
 
       <button class="btn-start" id="btn-start">🏆 ابدأ المسابقة!</button>
@@ -636,32 +638,37 @@
   <!-- ░░ GAME SCREEN ░░ -->
   <div id="scr-game" class="screen">
 
-    <!-- شريط التقدم -->
-    <div class="progress-wrap card" style="padding:14px 20px;">
+    <!-- شريط تقدم (single) -->
+    <div class="progress-wrap card" id="single-progress" style="padding:12px 20px;">
       <div class="progress-track">
         <div class="progress-fill" id="progress-fill" style="width:0%"></div>
       </div>
       <div class="progress-label" id="progress-label">سؤال ١ من ١٠</div>
     </div>
 
-    <!-- النتائج (٢ فريق) -->
+    <!-- شريط تقدم (tournament - 6 segments) -->
+    <div class="card tourney-prog-wrap" id="tourney-progress" style="display:none; padding:12px 20px;">
+      <div class="prog-segments" id="prog-segments"></div>
+      <div class="tourney-prog-label" id="tourney-prog-label"></div>
+    </div>
+
+    <!-- نتائج ٢ فريق -->
     <div class="score-bar-2" id="score-bar-2">
       <div class="t-score">
         <div class="t-name" id="t1-name-lbl" style="color:var(--t1)">الفريق الأول</div>
         <div class="t-pts" id="t1-pts" style="color:var(--t1)">٠</div>
       </div>
-      <!-- حبل الشد -->
-      <div style="flex:1.5; padding:0 10px;">
+      <div style="flex:1.5; padding:0 8px;">
         <div class="rope-wrap" id="rope-wrap">
-          <span class="rope-team" id="rope-t1-label" style="color:var(--t1)"></span>
+          <span class="rope-team-lbl" id="rope-t1-label" style="color:var(--t1)"></span>
           <div class="rope-track" id="rope-track">
             <div class="rope-seg-t1" id="rope-seg1" style="width:50%"></div>
             <div class="rope-seg-t2" id="rope-seg2" style="width:50%"></div>
             <div class="rope-knot" id="rope-knot" style="left:50%"></div>
           </div>
-          <span class="rope-team" id="rope-t2-label" style="color:var(--t2)"></span>
+          <span class="rope-team-lbl" id="rope-t2-label" style="color:var(--t2)"></span>
         </div>
-        <div class="q-counter" id="q-counter" style="text-align:center; color:rgba(255,255,255,.45); font-size:.8rem;"></div>
+        <div class="q-counter" id="q-counter" style="margin-top:4px;"></div>
       </div>
       <div class="t-score">
         <div class="t-name" id="t2-name-lbl" style="color:var(--t2)">الفريق الثاني</div>
@@ -669,27 +676,33 @@
       </div>
     </div>
 
-    <!-- النتائج (٣+ فرق) -->
-    <div class="score-bar-multi" id="score-bar-multi" style="display:none;">
-      <!-- يملؤها JS -->
-    </div>
+    <!-- نتائج ٣+ فرق -->
+    <div class="score-bar-multi" id="score-bar-multi" style="display:none;"></div>
 
     <div class="card">
+      <!-- شارة المادة (tournament) -->
+      <div class="subject-badge-wrap" id="subject-badge-wrap">
+        <div class="subject-badge" id="subject-badge">
+          <span class="sb-icon" id="sb-icon">🔢</span>
+          <span id="sb-name">الرياضيات</span>
+        </div>
+        <div class="subj-q-counter" id="subj-q-counter"></div>
+      </div>
+
       <div class="turn-bar t1" id="turn-bar">دور الفريق الأول 🔵</div>
       <div class="steal-banner" id="steal-banner">⚡ فرصة الاختطاف!</div>
-      <div class="tiebreaker-badge" id="tiebreaker-badge">⚡ جولة فاصلة — تعادل!</div>
       <div class="ai-thinking" id="ai-thinking">🤖 عقل الأرقم يفكر…</div>
 
       <div class="timer-wrap">
         <div class="timer-num" id="timer-num">٣٠</div>
         <div class="timer-track">
-          <div class="timer-fill" id="timer-fill" style="width:100%"></div>
+          <div class="timer-fill" id="timer-fill" style="width:100%; background:#00b09b;"></div>
         </div>
       </div>
 
       <div class="q-text" id="q-text">جاري تحميل السؤال…</div>
 
-      <div class="choices-grid" id="choices-grid">
+      <div class="choices-grid">
         <button class="ch-btn" id="ch0" onclick="G.pick(0)"><span class="ch-letter">أ</span><span id="ct0"></span></button>
         <button class="ch-btn" id="ch1" onclick="G.pick(1)"><span class="ch-letter">ب</span><span id="ct1"></span></button>
         <button class="ch-btn" id="ch2" onclick="G.pick(2)"><span class="ch-letter">ج</span><span id="ct2"></span></button>
@@ -704,10 +717,18 @@
     <div class="card result-center">
       <span style="font-size:5rem;">🏆</span>
       <div class="winner-txt" id="winner-txt">…</div>
-      <div class="final-scores" id="final-scores">
-        <!-- يملؤها JS -->
+      <div class="final-scores" id="final-scores"></div>
+
+      <!-- جدول البطولة التفصيلي -->
+      <div class="tourney-results" id="tourney-results">
+        <div class="tourney-results-title">📊 الأداء التفصيلي لكل مادة</div>
+        <div class="subj-table-wrap">
+          <table class="subj-table" id="subj-table"></table>
+        </div>
+        <div class="strongest-wrap" id="strongest-badges"></div>
       </div>
-      <button class="btn-again" onclick="G.reset()">🔄 العب مرة أخرى</button>
+
+      <button class="btn-again" onclick="G.reset()" style="margin-top:16px;">🔄 العب مرة أخرى</button>
     </div>
   </div>
 
