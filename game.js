@@ -4,14 +4,15 @@ const G = (() => {
   const toAr = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 
   // ── ثوابت المواد ──
-  const SUBJECTS = ['math','arabic','english','science','social','islamic'];
+  const SUBJECTS = ['math','arabic','english','science','social','islamic','computer'];
   const SUBJ_META = {
-    math:    { name:'الرياضيات',       icon:'🔢', cls:'sb-math',    seg:'seg-math' },
-    arabic:  { name:'اللغة العربية',    icon:'📖', cls:'sb-arabic',  seg:'seg-arabic' },
-    english: { name:'اللغة الإنجليزية', icon:'🔤', cls:'sb-english', seg:'seg-english' },
-    science: { name:'العلوم',           icon:'🔬', cls:'sb-science', seg:'seg-science' },
-    social:  { name:'الاجتماعيات',      icon:'🌍', cls:'sb-social',  seg:'seg-social' },
-    islamic: { name:'التربية الإسلامية',icon:'🕌', cls:'sb-islamic', seg:'seg-islamic' },
+    math:     { name:'الرياضيات',        icon:'🔢', cls:'sb-math',     seg:'seg-math' },
+    arabic:   { name:'اللغة العربية',     icon:'📖', cls:'sb-arabic',   seg:'seg-arabic' },
+    english:  { name:'اللغة الإنجليزية', icon:'🌐', cls:'sb-english',  seg:'seg-english' },
+    science:  { name:'العلوم',            icon:'🔬', cls:'sb-science',  seg:'seg-science' },
+    social:   { name:'الاجتماعيات',       icon:'🌍', cls:'sb-social',   seg:'seg-social' },
+    islamic:  { name:'التربية الإسلامية', icon:'🕌', cls:'sb-islamic',  seg:'seg-islamic' },
+    computer: { name:'الحاسب الآلي',      icon:'💻', cls:'sb-computer', seg:'seg-computer' },
   };
 
   // ── ألوان وأسماء الفرق ──
@@ -215,13 +216,14 @@ const G = (() => {
   }
 
   function getDistribution(total) {
-    if (total === 5)  return [1,1,1,1,1,0];
-    if (total === 7)  return [2,1,1,1,1,1];
-    if (total === 10) return [2,2,2,2,1,1];
-    if (total === 15) return [3,3,2,2,3,2];
-    const base = Math.floor(total / 6);
-    const extra = total % 6;
-    return Array.from({length:6}, (_, i) => base + (i < extra ? 1 : 0));
+    // ٧ مواد: رياضيات عربي إنجليزي علوم اجتماعيات إسلامية حاسب
+    if (total === 5)  return [1,1,1,1,1,0,0];
+    if (total === 7)  return [1,1,1,1,1,1,1];
+    if (total === 10) return [2,2,2,1,1,1,1];
+    if (total === 15) return [3,2,2,2,2,2,2];
+    const base = Math.floor(total / 7);
+    const extra = total % 7;
+    return Array.from({length:7}, (_, i) => base + (i < extra ? 1 : 0));
   }
 
   // ─────────────────────────────────────────────

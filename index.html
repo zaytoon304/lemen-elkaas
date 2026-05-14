@@ -325,19 +325,21 @@
     .subj-q-counter { font-size:.78rem; color:rgba(255,255,255,.42); margin-top:5px; }
 
     /* Subject colors */
-    .sb-math    { background:rgba(79,172,254,.18); border-color:#4facfe; color:#4facfe; }
-    .sb-arabic  { background:rgba(162,155,254,.18); border-color:#a29bfe; color:#a29bfe; }
-    .sb-english { background:rgba(0,206,201,.18); border-color:#00cec9; color:#00cec9; }
-    .sb-science { background:rgba(0,184,148,.18); border-color:#00b894; color:#00b894; }
-    .sb-social  { background:rgba(247,151,30,.18); border-color:#f7971e; color:#f7971e; }
-    .sb-islamic { background:rgba(212,165,65,.18); border-color:#d4a541; color:#d4a541; }
+    .sb-math     { background:rgba(79,172,254,.18); border-color:#4facfe; color:#4facfe; }
+    .sb-arabic   { background:rgba(162,155,254,.18); border-color:#a29bfe; color:#a29bfe; }
+    .sb-english  { background:rgba(0,206,201,.18); border-color:#00cec9; color:#00cec9; }
+    .sb-science  { background:rgba(0,184,148,.18); border-color:#00b894; color:#00b894; }
+    .sb-social   { background:rgba(247,151,30,.18); border-color:#f7971e; color:#f7971e; }
+    .sb-islamic  { background:rgba(212,165,65,.18); border-color:#d4a541; color:#d4a541; }
+    .sb-computer { background:rgba(253,121,168,.18); border-color:#fd79a8; color:#fd79a8; }
 
-    .seg-math    { background:rgba(79,172,254,.7); }
-    .seg-arabic  { background:rgba(162,155,254,.7); }
-    .seg-english { background:rgba(0,206,201,.7); }
-    .seg-science { background:rgba(0,184,148,.7); }
-    .seg-social  { background:rgba(247,151,30,.7); }
-    .seg-islamic { background:rgba(212,165,65,.7); }
+    .seg-math     { background:rgba(79,172,254,.7); }
+    .seg-arabic   { background:rgba(162,155,254,.7); }
+    .seg-english  { background:rgba(0,206,201,.7); }
+    .seg-science  { background:rgba(0,184,148,.7); }
+    .seg-social   { background:rgba(247,151,30,.7); }
+    .seg-islamic  { background:rgba(212,165,65,.7); }
+    .seg-computer { background:rgba(253,121,168,.7); }
 
     /* Turn bar */
     .turn-bar {
@@ -586,12 +588,13 @@
       <div id="single-only-subj">
         <div class="sec-label">اختر المادة</div>
         <div class="subjects-grid">
-          <button class="subj-btn" data-s="math">   <span class="subj-icon">🔢</span>الرياضيات</button>
-          <button class="subj-btn" data-s="arabic">  <span class="subj-icon">📖</span>اللغة العربية</button>
-          <button class="subj-btn" data-s="english"> <span class="subj-icon">🌐</span>اللغة الإنجليزية</button>
-          <button class="subj-btn" data-s="science"> <span class="subj-icon">🔬</span>العلوم</button>
-          <button class="subj-btn" data-s="social">  <span class="subj-icon">🌍</span>الاجتماعيات</button>
-          <button class="subj-btn" data-s="islamic"> <span class="subj-icon">☪️</span>التربية الإسلامية</button>
+          <button class="subj-btn" data-s="math">     <span class="subj-icon">🔢</span>الرياضيات</button>
+          <button class="subj-btn" data-s="arabic">   <span class="subj-icon">📖</span>اللغة العربية</button>
+          <button class="subj-btn" data-s="english">  <span class="subj-icon">🌐</span>اللغة الإنجليزية</button>
+          <button class="subj-btn" data-s="science">  <span class="subj-icon">🔬</span>العلوم</button>
+          <button class="subj-btn" data-s="social">   <span class="subj-icon">🌍</span>الاجتماعيات</button>
+          <button class="subj-btn" data-s="islamic">  <span class="subj-icon">☪️</span>التربية الإسلامية</button>
+          <button class="subj-btn" data-s="computer"> <span class="subj-icon">💻</span>الحاسب الآلي</button>
         </div>
       </div>
 
@@ -627,8 +630,8 @@
 
       <!-- شارة البطولة الكبرى -->
       <div class="tourney-info-badge" id="tourney-info-badge">
-        <span class="ti-big">٢ × ٦ = ١٢ سؤال لكل فريق</span>
-        سؤالان من كل مادة من المواد الست
+        <span class="ti-big">٢ × ٧ = ١٤ سؤال لكل فريق</span>
+        سؤالان من كل مادة من المواد السبع
       </div>
 
       <button class="btn-start" id="btn-start">🏆 ابدأ المسابقة!</button>
@@ -741,6 +744,7 @@
 <script src="questions-science.js"></script>
 <script src="questions-social.js"></script>
 <script src="questions-islamic.js"></script>
+<script src="questions-computer.js"></script>
 <script src="questions.js"></script>
 <script src="game.js"></script>
 </body>
